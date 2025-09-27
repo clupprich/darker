@@ -35,7 +35,7 @@ You can burn the first image with the following commands:
 # If you want to enable wifi:
 # export NERVES_SSID="NetworkName" && export NERVES_PSK="password"
 MIX_ENV=prod MIX_TARGET=host mix do deps.get, assets.deploy
-MIX_ENV=prod MIX_TARGET=rpi3 mix do deps.get, firmware, burn
+MIX_ENV=prod MIX_TARGET=rpi4 mix do deps.get, firmware, burn
 ```
 
 Once the image is running on the device, the following will build and update the
@@ -45,7 +45,7 @@ firmware over ssh.
 # If you want to enable wifi:
 # export NERVES_SSID="NetworkName" && export NERVES_PSK="password"
 MIX_ENV=prod MIX_TARGET=host mix do deps.get, assets.deploy
-MIX_ENV=prod MIX_TARGET=rpi3 mix do deps.get, firmware, upload your_app_name.local
+MIX_ENV=prod MIX_TARGET=rpi4 mix do deps.get, firmware, upload your_app_name.local
 ```
 
 ## Network Configuration
