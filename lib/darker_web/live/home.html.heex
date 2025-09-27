@@ -1,0 +1,15 @@
+<div class="px-4 py-3 sm:px-6 sm:py-14 lg:px-8 xl:px-28 xl:py-32">
+  <div class="max-w-xl mx-auto lg:mx-0">
+    <h1 class="flex items-center mt-10 text-sm font-semibold leading-6 text-brand">
+      Darker
+      <small class="bg-brand/5 text-[0.8125rem] ml-3 rounded-full px-2 font-medium leading-6">
+        v{Application.spec(:darker, :vsn)}
+      </small>
+    </h1>
+    <p class="text-[2rem] mt-4 font-semibold leading-10 tracking-tighter text-zinc-900 text-balance">
+      Let there be light.
+    </p>
+    Current brightness: {@brightness}% <button phx-click="inc_brightness">+</button>
+    <button phx-click="dec_brightness">-</button>
+  </div>
+</div>

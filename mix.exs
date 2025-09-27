@@ -29,7 +29,8 @@ defmodule Darker.MixProject do
   def application do
     [
       mod: {Darker.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools],
+      env: [pwm_base_path: "/sys/class/pwm/pwmchip0"]
     ]
   end
 

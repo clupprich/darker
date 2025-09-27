@@ -14,9 +14,10 @@ defmodule Darker.Application do
         # Start the PubSub system
         {Phoenix.PubSub, name: Darker.PubSub},
         # Start the Endpoint (http/https)
-        DarkerWeb.Endpoint
+        DarkerWeb.Endpoint,
         # Start a worker by calling: Darker.Worker.start_link(arg)
         # {Darker.Worker, arg}
+        {Darker.Lights, %{}}
       ] ++ children(target())
 
     # See https://hexdocs.pm/elixir/Supervisor.html

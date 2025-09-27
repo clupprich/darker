@@ -3,19 +3,30 @@ defmodule DarkerWeb.Home do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    Phoenix.PubSub.subscribe(Darker.PubSub, "brightness")
+
+    brightness = Darker.Lights.get_brightness()
+    {:ok, assign(socket, :brightness, brightness)}
   end
 
   @impl true
-  def render(assigns) do
-    ~H"""
-    <.page_title title="Hello, LiveView!" />
-    <.body>
-      Click to learn more about
-      <.link_to href="https://nerves-project.org">Nerves</.link_to>
-      and
-      <.link_to href="https://www.phoenixframework.org/">LiveView</.link_to>.
-    </.body>
-    """
+  def handle_event("inc_brightness", _params, socket) do
+    current_level = Darker.Lights.get_brightness()
+    Darker.Lights.set_brightness(current_level + 1)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("dec_brightness", _params, socket) do
+    current_level = Darker.Lights.get_brightness()
+    Darker.Lights.set_brightness(current_level - 1)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(%{level: level}, socket) do
+    {:noreply, assign(socket, :brightness, level)}
   end
 end
