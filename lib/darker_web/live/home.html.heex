@@ -6,10 +6,14 @@
         v{Application.spec(:darker, :vsn)}
       </small>
     </h1>
-    <p class="text-[2rem] mt-4 font-semibold leading-10 tracking-tighter text-zinc-900 text-balance">
+    <h1 class="text-[2rem] mt-4 font-semibold leading-10 tracking-tighter text-zinc-900 text-balance mb-4">
       Let there be light.
-    </p>
-    Current brightness: {@brightness}% <button phx-click="inc_brightness">+</button>
-    <button phx-click="dec_brightness">-</button>
+    </h1>
+
+    <div class="flex">
+      <span class="text-md py-4">Current brightness: {@brightness}%</span>
+      <button phx-click="inc_brightness" class="p-4">+</button>
+      <button phx-click="dec_brightness" class="p-4">-</button>
+    </div>
   </div>
 </div>
