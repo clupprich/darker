@@ -10,6 +10,13 @@ defmodule DarkerWeb.Home do
   end
 
   @impl true
+  def handle_event("inc_brightness", %{"delta" => delta}, socket) do
+    current_level = Darker.Lights.get_brightness()
+    Darker.Lights.set_brightness(current_level + delta)
+
+    {:noreply, socket}
+  end
+
   def handle_event("inc_brightness", _params, socket) do
     current_level = Darker.Lights.get_brightness()
     Darker.Lights.set_brightness(current_level + 1)
@@ -18,6 +25,13 @@ defmodule DarkerWeb.Home do
   end
 
   @impl true
+  def handle_event("dec_brightness", %{"delta" => delta}, socket) do
+    current_level = Darker.Lights.get_brightness()
+    Darker.Lights.set_brightness(current_level - delta)
+
+    {:noreply, socket}
+  end
+
   def handle_event("dec_brightness", _params, socket) do
     current_level = Darker.Lights.get_brightness()
     Darker.Lights.set_brightness(current_level - 1)

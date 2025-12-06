@@ -12,8 +12,10 @@
 
     <div class="flex">
       <span class="text-md py-4">Current brightness: {@brightness}%</span>
-      <button phx-click="inc_brightness" class="p-4">+</button>
-      <button phx-click="dec_brightness" class="p-4">-</button>
+      <button phx-click={JS.push("inc_brightness")} class="p-4">+</button>
+      <button phx-click={JS.push("dec_brightness")} class="p-4">-</button>
+      <button phx-click={JS.push("inc_brightness", value: %{delta: 10})} class="p-4">++</button>
+      <button phx-click={JS.push("dec_brightness", value: %{delta: 10})} class="p-4">--</button>
     </div>
   </div>
 </div>
