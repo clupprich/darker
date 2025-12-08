@@ -17,7 +17,8 @@ defmodule Darker.Application do
         DarkerWeb.Endpoint,
         # Start a worker by calling: Darker.Worker.start_link(arg)
         # {Darker.Worker, arg}
-        {Darker.Lights, %{}}
+        {Darker.Lights, %{}},
+        Darker.Scheduler
       ] ++ children(target())
 
     # See https://hexdocs.pm/elixir/Supervisor.html

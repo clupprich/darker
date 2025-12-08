@@ -45,7 +45,7 @@ firmware over ssh.
 # If you want to enable wifi:
 # export NERVES_SSID="NetworkName" && export NERVES_PSK="password"
 MIX_ENV=prod MIX_TARGET=host mix do deps.get, assets.deploy
-MIX_ENV=prod MIX_TARGET=rpi4 mix do deps.get, firmware, upload your_app_name.local
+MIX_ENV=prod MIX_TARGET=rpi4 mix do deps.get, firmware, upload darker.local
 ```
 
 ## Network Configuration
@@ -59,29 +59,43 @@ which either gives you a chance to stop the build and add the environment
 variables or a clue as to why you are no longer able to access the device over
 WiFi.
 
-## Making It Your Own
+## Control
 
-To use this project as a start for your own Nerves/LiveView project, first
-replace the following strings throughout the project:
+```elixir
+File.write!("/sys/class/pwm/pwmchip0/export", "0")
 
-* `HelloLiveView` -> `YourAppName`
-* `hello_live_view` -> `your_app_name`
+File.write!("/sys/class/pwm/pwmchip0/pwm0/period", "1000000")
+# Linear
+File.write!("/sys/class/pwm/pwmchip0/pwm0/duty_cycle", "772700")
+# Logarithmic
+File.write!("/sys/class/pwm/pwmchip0/pwm0/duty_cycle", "77250")
 
-```bash
-# Might be necessary in MacOS to avoid a sed "illegal byte sequence" error
-# export LC_CTYPE=C
-# export LANG=C
+File.write!("/sys/class/pwm/pwmchip0/pwm0/enable", "1")
+File.write!("/sys/class/pwm/pwmchip0/pwm0/enable", "0")
 
-find . -type f \( -iname "*.ex*" ! -path "./deps/*" ! -path "./_build/*" \) -print0 | xargs -0 sed -i '' -e 's/HelloLiveView/YourAppName/g'
-find . -type f \( -iname "*.ex*" ! -path "./deps/*" ! -path "./_build/*" \) -print0 | xargs -0 sed -i '' -e 's/hello_live_view/your_app_name/g'
-sed -i '' 's/hello_live_view/your_app_name/g' ./scripts/deploy.sh
+delta = 1000000 - 77250
+steps = 1000
+
+for i <- 0..steps do
+  duty_cycle = round(1000000 - ((delta / steps) * i))
+  IO.puts("Duty cycle: #{duty_cycle}")
+  File.write!("/sys/class/pwm/pwmchip0/pwm0/duty_cycle", "#{duty_cycle}")
+  :timer.sleep(10)
+end
+
 ```
 
-Then rename the files and directories in lib:
+```elixir
+{:ok, gpio} = Circuits.GPIO.open("GPIO26", :output)
+Circuits.GPIO.write(gpio, 1)
+Circuits.GPIO.write(gpio, 0)
+Circuits.GPIO.close(gpio)
 
-```bash
-mv lib/hello_live_view lib/your_app_name
-mv lib/hello_live_view_web lib/your_app_name_web
-mv lib/hello_live_view.ex lib/your_app_name.ex
-mv liv/hello_live_view_web.ex lib/your_app_name_web.ex
+Circuits.GPIO.write_one("GPIO26", 1)
+```
+
+```elixir
+import Crontab.CronExpression
+
+Darker.Scheduler.add_job({~e[* * * * *], fn -> Circuits.GPIO.write_one("GPIO26", 1) end})
 ```
