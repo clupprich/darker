@@ -10,6 +10,13 @@ defmodule Darker.Lights do
 
   @impl GenServer
   def init(state \\ %{}) do
+    {:ok, state, {:continue, :init_lights}}
+  end
+
+  @impl GenServer
+  def handle_continue(:init_lights, state) do
+    :timer.sleep(5000)
+
     Logger.info("Initializing Lights")
 
     Pwm.export("0")
@@ -17,7 +24,7 @@ defmodule Darker.Lights do
     Pwm.duty_cycle(77_250)
     Pwm.enable("1")
 
-    {:ok, state}
+    {:noreply, state}
   end
 
   @impl GenServer
