@@ -62,6 +62,24 @@ defmodule Darker.Lights do
     {:noreply, state}
   end
 
+  @impl GenServer
+  def handle_cast(:on, state) do
+    Logger.info("Turn lights on")
+
+    Circuits.GPIO.write_one("GPIO26", 1)
+
+    {:noreply, state}
+  end
+
+  @impl GenServer
+  def handle_cast(:off, state) do
+    Logger.info("Turn lights off")
+
+    Circuits.GPIO.write_one("GPIO26", 0)
+
+    {:noreply, state}
+  end
+
   def get_brightness() do
     GenServer.call(__MODULE__, :get_brightness)
   end
@@ -76,6 +94,14 @@ defmodule Darker.Lights do
 
   def disable() do
     GenServer.cast(__MODULE__, :disable)
+  end
+
+  def on() do
+    GenServer.cast(__MODULE__, :on)
+  end
+
+  def off() do
+    GenServer.cast(__MODULE__, :off)
   end
 
   defp duty_cycle_to_level(duty_cycle) do

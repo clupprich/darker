@@ -99,3 +99,10 @@ import Crontab.CronExpression
 
 Darker.Scheduler.add_job({~e[* * * * *], fn -> Circuits.GPIO.write_one("GPIO26", 1) end})
 ```
+
+```
+~e[5 30 * * *],:on,3
+~e[6 30 * * *],:on,43
+~e[18 30 * * *],:on,3
+~e[21 30 * * *],:off,3
+```
