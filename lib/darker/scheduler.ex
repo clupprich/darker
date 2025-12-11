@@ -5,9 +5,9 @@ defmodule Darker.Scheduler do
 
   def load_schedule() do
     schedule = [
-      {~e[30 5 * * *], :on, 3},
-      {~e[30 6 * * *], :on, 43},
-      {~e[30 18 * * *], :on, 3},
+      {~e[30 4 * * *], :on, 3},
+      {~e[30 5 * * *], :on, 43},
+      {~e[00 18 * * *], :on, 3},
       {~e[30 21 * * *], :off, 3}
     ]
 
