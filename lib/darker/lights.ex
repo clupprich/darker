@@ -39,6 +39,19 @@ defmodule Darker.Lights do
   end
 
   @impl GenServer
+  def handle_call(:get_status, _from, state) do
+    # Circuits.GPIO.read("GPIO26") do
+    status =
+      case Circuits.GPIO.read_one("GPIO26") do
+        1 -> :on
+        0 -> :off
+        _ -> :unknown
+      end
+
+    {:reply, status, state}
+  end
+
+  @impl GenServer
   def handle_cast({:set_brightness, level}, state) do
     duty_cycle = level_to_duty_cycle(level) |> Integer.to_string()
 
@@ -75,6 +88,8 @@ defmodule Darker.Lights do
 
     Circuits.GPIO.write_one("GPIO26", 1)
 
+    Phoenix.PubSub.broadcast(Darker.PubSub, "status", %{status: :on})
+
     {:noreply, state}
   end
 
@@ -84,11 +99,17 @@ defmodule Darker.Lights do
 
     Circuits.GPIO.write_one("GPIO26", 0)
 
+    Phoenix.PubSub.broadcast(Darker.PubSub, "status", %{status: :off})
+
     {:noreply, state}
   end
 
   def get_brightness() do
     GenServer.call(__MODULE__, :get_brightness)
+  end
+
+  def get_status() do
+    GenServer.call(__MODULE__, :get_status)
   end
 
   def set_brightness(level) do

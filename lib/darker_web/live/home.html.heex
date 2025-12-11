@@ -10,12 +10,15 @@
       Let there be light.
     </h1>
 
-    <div class="flex">
-      <span class="text-md py-4">Current brightness: {@brightness}%</span>
-      <button phx-click={JS.push("inc_brightness")} class="p-4">+</button>
-      <button phx-click={JS.push("dec_brightness")} class="p-4">-</button>
-      <button phx-click={JS.push("inc_brightness", value: %{delta: 10})} class="p-4">++</button>
-      <button phx-click={JS.push("dec_brightness", value: %{delta: 10})} class="p-4">--</button>
+    <div class="flex flex-col">
+      <div class="text-md py-1">Current brightness: {@brightness}%</div>
+      <div class="text-md py-4">Current status: {@status}</div>
+      <div>
+        <button phx-click={JS.push("inc_brightness")} class="p-4">+</button>
+        <button phx-click={JS.push("dec_brightness")} class="p-4">-</button>
+        <button phx-click={JS.push("inc_brightness", value: %{delta: 10})} class="p-4">++</button>
+        <button phx-click={JS.push("dec_brightness", value: %{delta: 10})} class="p-4">--</button>
+      </div>
     </div>
   </div>
 </div>
