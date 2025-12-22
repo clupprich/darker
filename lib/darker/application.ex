@@ -24,7 +24,11 @@ defmodule Darker.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Darker.Supervisor]
-    Supervisor.start_link(children, opts)
+    {:ok, pid} = Supervisor.start_link(children, opts)
+
+    Darker.Scheduler.load_schedule()
+
+    {:ok, pid}
   end
 
   # List all child processes to be supervised
