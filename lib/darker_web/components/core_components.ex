@@ -17,7 +17,7 @@ defmodule DarkerWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import DarkerWeb.Gettext
+  use Gettext, backend: DarkerWeb.Gettext
 
   @doc """
   Renders a modal.

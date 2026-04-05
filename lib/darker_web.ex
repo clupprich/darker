@@ -43,7 +43,7 @@ defmodule DarkerWeb do
         layouts: [html: DarkerWeb.Layouts]
 
       import Plug.Conn
-      import DarkerWeb.Gettext
+      use Gettext, backend: DarkerWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -85,7 +85,7 @@ defmodule DarkerWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import DarkerWeb.CoreComponents
-      import DarkerWeb.Gettext
+      use Gettext, backend: DarkerWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

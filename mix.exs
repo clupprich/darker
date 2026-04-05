@@ -18,7 +18,8 @@ defmodule Darker.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      releases: [{@app, release()}]
+      releases: [{@app, release()}],
+      listeners: listeners(Mix.env())
     ]
   end
 
@@ -47,14 +48,14 @@ defmodule Darker.MixProject do
   defp deps do
     [
       # Initial pheonix deps
-      {:phoenix, "~> 1.7.2"},
+      {:phoenix, "~> 1.8.5"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.6", only: :dev, targets: :host},
       {:phoenix_live_view, "~> 1.0"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8"},
       {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.3.1", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.4.1", runtime: Mix.env() == :dev},
       {:heroicons,
        github: "tailwindlabs/heroicons",
        tag: "v2.1.1",
@@ -64,7 +65,7 @@ defmodule Darker.MixProject do
        depth: 1},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
-      {:gettext, "~> 0.20"},
+      {:gettext, "~> 1.0.2"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:quantum, "~> 3.0"},
@@ -72,7 +73,7 @@ defmodule Darker.MixProject do
       {:circuits_gpio, "~> 2.1"},
 
       # Dependencies for all targets
-      {:nerves, "~> 1.7.16 or ~> 1.8.0 or ~> 1.9.0 or ~> 1.10.4 or ~> 1.11.0", runtime: false},
+      {:nerves, "~> 1.13.2", runtime: false},
       {:shoehorn, "~> 0.9.1"},
       {:ring_logger, "~> 0.11.0"},
       {:toolshed, "~> 0.4.0"},
@@ -86,7 +87,7 @@ defmodule Darker.MixProject do
       # bumps to Nerves systems. Since these include Linux kernel and Erlang
       # version updates, please review their release notes in case
       # changes to your application are needed.
-      {:nerves_system_rpi4, "~> 1.19", runtime: false, targets: :rpi4}
+      {:nerves_system_rpi4, "~> 2.0.1", runtime: false, targets: :rpi4}
     ]
   end
 
@@ -116,4 +117,7 @@ defmodule Darker.MixProject do
       strip_beams: Mix.env() == :prod or [keep: ["Docs"]]
     ]
   end
+
+  defp listeners(:dev), do: [Phoenix.CodeReloader]
+  defp listeners(_), do: []
 end
