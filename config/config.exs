@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+config :darker, Darker.Scheduler, timezone: "Europe/Vienna"
+
 ################################################################
 ## Phoenix Config
 ################################################################
@@ -73,6 +75,8 @@ config :nerves, source_date_epoch: "1672328776"
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

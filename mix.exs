@@ -18,9 +18,12 @@ defmodule Darker.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      releases: [{@app, release()}],
-      preferred_cli_target: [run: :host, test: :host]
+      releases: [{@app, release()}]
     ]
+  end
+
+  def cli do
+    [preferred_targets: [run: :host, test: :host]]
   end
 
   # Configuration for the OTP application.
@@ -65,6 +68,7 @@ defmodule Darker.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:quantum, "~> 3.0"},
+      {:tzdata, "~> 1.1"},
       {:circuits_gpio, "~> 2.1"},
 
       # Dependencies for all targets
