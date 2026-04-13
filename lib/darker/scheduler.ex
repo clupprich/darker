@@ -5,10 +5,10 @@ defmodule Darker.Scheduler do
 
   def load_schedule() do
     schedule = [
-      {~e[30 4 * * *], :on, 3},
-      {~e[30 5 * * *], :on, 43},
-      {~e[00 18 * * *], :on, 3},
-      {~e[30 21 * * *], :off, 3}
+      {~e[30 5 * * *], :on, 4},
+      {~e[30 6 * * *], :on, 44},
+      {~e[00 18 * * *], :on, 4},
+      {~e[30 19 * * *], :off, 4}
     ]
 
     delete_all_jobs()
