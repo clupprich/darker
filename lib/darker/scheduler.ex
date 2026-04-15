@@ -8,7 +8,7 @@ defmodule Darker.Scheduler do
       {~e[30 5 * * *], :on, 4},
       {~e[30 6 * * *], :on, 44},
       {~e[00 18 * * *], :on, 4},
-      {~e[30 19 * * *], :off, 4}
+      {~e[30 22 * * *], :off, 4}
     ]
 
     delete_all_jobs()
