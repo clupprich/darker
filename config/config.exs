@@ -16,6 +16,7 @@ config :darker, Darker.Scheduler, timezone: "Europe/Vienna"
 # Configures the endpoint
 config :darker, DarkerWeb.Endpoint,
   url: [host: "localhost"],
+  adapter: Bandit.PhoenixAdapter,
   render_errors: [
     formats: [html: DarkerWeb.ErrorHTML, json: DarkerWeb.ErrorJSON],
     layout: false

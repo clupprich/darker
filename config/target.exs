@@ -22,6 +22,10 @@ config :shoehorn, init: [:nerves_runtime, :nerves_pack]
 # upgrades. See https://hexdocs.pm/nerves_runtime/readme.html#assisted-firmware-validation-and-automatic-revert
 config :nerves_runtime, startup_guard_enabled: true
 
+# The root filesystem is read-only, so tzdata can't store downloaded updates.
+# Use the time zone data bundled with the tzdata release instead.
+config :tzdata, :autoupdate, :disabled
+
 # Erlinit can be configured without a rootfs_overlay. See
 # https://github.com/nerves-project/erlinit/ for more information on
 # configuring erlinit.

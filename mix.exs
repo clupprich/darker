@@ -67,7 +67,7 @@ defmodule Darker.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 1.0.2"},
       {:jason, "~> 1.2"},
-      {:plug_cowboy, "~> 2.5"},
+      {:bandit, "~> 1.12"},
       {:quantum, "~> 3.0"},
       {:tzdata, "~> 1.1"},
       {:circuits_gpio, "~> 2.3"},
