@@ -11,9 +11,9 @@ defmodule Darker.MixProject do
     [
       app: @app,
       version: @version,
-      elixir: "~> 1.16",
+      elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
-      archives: [nerves_bootstrap: "~> 1.13"],
+      archives: [nerves_bootstrap: "~> 1.17"],
       compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -48,10 +48,10 @@ defmodule Darker.MixProject do
   defp deps do
     [
       # Initial pheonix deps
-      {:phoenix, "~> 1.8.5"},
+      {:phoenix, "~> 1.8.14"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.6", only: :dev, targets: :host},
-      {:phoenix_live_view, "~> 1.0"},
+      {:phoenix_live_view, "~> 1.2"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8"},
       {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
@@ -70,24 +70,24 @@ defmodule Darker.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:quantum, "~> 3.0"},
       {:tzdata, "~> 1.1"},
-      {:circuits_gpio, "~> 2.1"},
+      {:circuits_gpio, "~> 2.3"},
 
       # Dependencies for all targets
-      {:nerves, "~> 1.13.2", runtime: false},
-      {:shoehorn, "~> 0.9.1"},
-      {:ring_logger, "~> 0.11.0"},
-      {:toolshed, "~> 0.4.0"},
+      {:nerves, "~> 1.15", runtime: false},
+      {:shoehorn, "~> 0.9.3"},
+      {:ring_logger, "~> 0.11.7"},
+      {:toolshed, "~> 0.5.0"},
 
       # Dependencies for all targets except :host
-      {:nerves_runtime, "~> 0.13.0", targets: @all_targets},
-      {:nerves_pack, "~> 0.7.0", targets: @all_targets},
+      {:nerves_runtime, "~> 0.13.13", targets: @all_targets},
+      {:nerves_pack, "~> 0.7.2", targets: @all_targets},
 
       # Dependencies for specific targets
       # NOTE: It's generally low risk and recommended to follow minor version
       # bumps to Nerves systems. Since these include Linux kernel and Erlang
       # version updates, please review their release notes in case
       # changes to your application are needed.
-      {:nerves_system_rpi4, "~> 2.0.1", runtime: false, targets: :rpi4}
+      {:nerves_system_rpi4, "~> 2.1.2", runtime: false, targets: :rpi4}
     ]
   end
 

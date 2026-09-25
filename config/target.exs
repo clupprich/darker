@@ -17,6 +17,11 @@ config :logger, backends: [RingLogger]
 
 config :shoehorn, init: [:nerves_runtime, :nerves_pack]
 
+# Mark new firmware as valid once all OTP applications have started. Without
+# this, the tryboot-based A/B updates revert on reboot and refuse further
+# upgrades. See https://hexdocs.pm/nerves_runtime/readme.html#assisted-firmware-validation-and-automatic-revert
+config :nerves_runtime, startup_guard_enabled: true
+
 # Erlinit can be configured without a rootfs_overlay. See
 # https://github.com/nerves-project/erlinit/ for more information on
 # configuring erlinit.
