@@ -3,6 +3,8 @@ defmodule Darker.Scheduler do
 
   import Crontab.CronExpression
 
+  @fade_duration :timer.minutes(2)
+
   def load_schedule() do
     delete_all_jobs()
     schedule() |> Enum.each(&schedule_event/1)
@@ -15,7 +17,7 @@ defmodule Darker.Scheduler do
       {~e[30 5 * * *], :on, 5},
       {~e[30 6 * * *], :on, 30},
       {~e[00 18 * * *], :on, 5},
-      {~e[30 22 * * *], :off, 5}
+      {~e[30 22 * * *], :off, 0}
     ]
   end
 
@@ -40,11 +42,10 @@ defmodule Darker.Scheduler do
 
   defp run_event({_cron, :on, brightness}) do
     Darker.Lights.on()
-    Darker.Lights.set_brightness(brightness)
+    Darker.Lights.fade_to(brightness, @fade_duration)
   end
 
   defp run_event({_cron, :off, brightness}) do
-    Darker.Lights.off()
-    Darker.Lights.set_brightness(brightness)
+    Darker.Lights.fade_to(brightness, @fade_duration, then: :off)
   end
 end

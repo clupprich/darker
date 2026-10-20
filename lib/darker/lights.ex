@@ -4,6 +4,8 @@ defmodule Darker.Lights do
 
   require Logger
 
+  @fade_step_interval 100
+
   def start_link(state \\ %{}) do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
@@ -22,7 +24,7 @@ defmodule Darker.Lights do
     {:ok, i2c} = Dac.open()
     :ok = Dac.millivolts(i2c, level_to_millivolts(0))
 
-    {:noreply, Map.merge(state, %{i2c: i2c, level: 0, status: :off})}
+    {:noreply, Map.merge(state, %{i2c: i2c, level: 0, millivolts: 0, status: :off, fade: nil})}
   end
 
   @impl GenServer
@@ -39,38 +41,69 @@ defmodule Darker.Lights do
 
   @impl GenServer
   def handle_cast({:set_brightness, level}, state) do
-    level = level |> max(0) |> min(100)
-    millivolts = level_to_millivolts(level)
+    level = clamp(level)
 
-    Logger.info("Setting brightness to #{level}% (#{millivolts} mV)")
+    Logger.info("Setting brightness to #{level}% (#{level_to_millivolts(level)} mV)")
 
-    :ok = Dac.millivolts(state.i2c, millivolts)
+    state = %{state | fade: nil} |> write_millivolts(level_to_millivolts(level))
 
-    Phoenix.PubSub.broadcast(Darker.PubSub, "brightness", %{level: level})
+    {:noreply, state}
+  end
 
-    {:noreply, %{state | level: level}}
+  @impl GenServer
+  def handle_cast({:fade_to, level, duration, opts}, state) do
+    level = clamp(level)
+    to = level_to_millivolts(level)
+
+    Logger.info(
+      "Fading brightness from #{state.level}% to #{level}% over #{div(duration, 1000)}s"
+    )
+
+    fade = %{
+      ref: make_ref(),
+      from: state.millivolts,
+      to: to,
+      started_at: System.monotonic_time(:millisecond),
+      duration: if(state.millivolts == to, do: 0, else: duration),
+      then: Keyword.get(opts, :then)
+    }
+
+    send(self(), {:fade_step, fade.ref})
+
+    {:noreply, %{state | fade: fade}}
   end
 
   @impl GenServer
   def handle_cast(:on, state) do
-    Logger.info("Turn lights on")
-
-    Circuits.GPIO.write_one("GPIO26", 1)
-
-    Phoenix.PubSub.broadcast(Darker.PubSub, "status", %{status: :on})
-
-    {:noreply, %{state | status: :on}}
+    {:noreply, switch(state, :on)}
   end
 
   @impl GenServer
   def handle_cast(:off, state) do
-    Logger.info("Turn lights off")
+    {:noreply, switch(state, :off)}
+  end
 
-    Circuits.GPIO.write_one("GPIO26", 0)
+  @impl GenServer
+  def handle_info({:fade_step, ref}, %{fade: %{ref: ref} = fade} = state) do
+    elapsed = System.monotonic_time(:millisecond) - fade.started_at
+    progress = if fade.duration == 0, do: 1.0, else: min(elapsed / fade.duration, 1.0)
 
-    Phoenix.PubSub.broadcast(Darker.PubSub, "status", %{status: :off})
+    state = write_millivolts(state, round(fade.from + (fade.to - fade.from) * progress))
 
-    {:noreply, %{state | status: :off}}
+    if progress < 1.0 do
+      Process.send_after(self(), {:fade_step, ref}, @fade_step_interval)
+      {:noreply, state}
+    else
+      Logger.info("Fade finished at #{state.level}%")
+      state = %{state | fade: nil}
+      {:noreply, if(fade.then, do: switch(state, fade.then), else: state)}
+    end
+  end
+
+  # A manual change or a newer fade replaced this one.
+  @impl GenServer
+  def handle_info({:fade_step, _ref}, state) do
+    {:noreply, state}
   end
 
   def get_brightness() do
@@ -85,6 +118,10 @@ defmodule Darker.Lights do
     GenServer.cast(__MODULE__, {:set_brightness, level})
   end
 
+  def fade_to(level, duration, opts \\ []) do
+    GenServer.cast(__MODULE__, {:fade_to, level, duration, opts})
+  end
+
   def on() do
     GenServer.cast(__MODULE__, :on)
   end
@@ -92,6 +129,30 @@ defmodule Darker.Lights do
   def off() do
     GenServer.cast(__MODULE__, :off)
   end
+
+  defp switch(state, status) do
+    Logger.info("Turn lights #{status}")
+
+    Circuits.GPIO.write_one("GPIO26", if(status == :on, do: 1, else: 0))
+
+    Phoenix.PubSub.broadcast(Darker.PubSub, "status", %{status: status})
+
+    %{state | status: status}
+  end
+
+  defp write_millivolts(state, millivolts) do
+    :ok = Dac.millivolts(state.i2c, millivolts)
+
+    level = round(millivolts / 100)
+
+    if level != state.level do
+      Phoenix.PubSub.broadcast(Darker.PubSub, "brightness", %{level: level})
+    end
+
+    %{state | millivolts: millivolts, level: level}
+  end
+
+  defp clamp(level), do: level |> max(0) |> min(100)
 
   # The dimmer applies its own (logarithmic) curve, so map linearly onto 0-10V.
   defp level_to_millivolts(level) do
