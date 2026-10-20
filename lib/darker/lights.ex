@@ -22,7 +22,7 @@ defmodule Darker.Lights do
     {:ok, i2c} = Dac.open()
     :ok = Dac.millivolts(i2c, level_to_millivolts(0))
 
-    {:noreply, Map.merge(state, %{i2c: i2c, level: 0})}
+    {:noreply, Map.merge(state, %{i2c: i2c, level: 0, status: :off})}
   end
 
   @impl GenServer
@@ -30,17 +30,11 @@ defmodule Darker.Lights do
     {:reply, state.level, state}
   end
 
+  # Reading GPIO26 back would reopen it as an input and may release the relay,
+  # so report the last state we wrote instead.
   @impl GenServer
   def handle_call(:get_status, _from, state) do
-    # Circuits.GPIO.read("GPIO26") do
-    status =
-      case Circuits.GPIO.read_one("GPIO26") do
-        1 -> :on
-        0 -> :off
-        _ -> :unknown
-      end
-
-    {:reply, status, state}
+    {:reply, state.status, state}
   end
 
   @impl GenServer
@@ -65,7 +59,7 @@ defmodule Darker.Lights do
 
     Phoenix.PubSub.broadcast(Darker.PubSub, "status", %{status: :on})
 
-    {:noreply, state}
+    {:noreply, %{state | status: :on}}
   end
 
   @impl GenServer
@@ -76,7 +70,7 @@ defmodule Darker.Lights do
 
     Phoenix.PubSub.broadcast(Darker.PubSub, "status", %{status: :off})
 
-    {:noreply, state}
+    {:noreply, %{state | status: :off}}
   end
 
   def get_brightness() do
