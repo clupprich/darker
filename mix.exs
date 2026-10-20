@@ -34,7 +34,7 @@ defmodule Darker.MixProject do
     [
       mod: {Darker.Application, []},
       extra_applications: [:logger, :runtime_tools],
-      env: [pwm_base_path: "/sys/class/pwm/pwmchip0"]
+      env: [dac: [bus: "i2c-1", address: 0x58, channel: 1]]
     ]
   end
 
@@ -71,6 +71,7 @@ defmodule Darker.MixProject do
       {:quantum, "~> 3.0"},
       {:tzdata, "~> 1.1"},
       {:circuits_gpio, "~> 2.3"},
+      {:circuits_i2c, "~> 2.1"},
 
       # Dependencies for all targets
       {:nerves, "~> 1.15", runtime: false},

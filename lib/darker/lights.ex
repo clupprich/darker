@@ -1,6 +1,6 @@
 defmodule Darker.Lights do
   use GenServer
-  alias Darker.Pwm
+  alias Darker.Dac
 
   require Logger
 
@@ -19,23 +19,15 @@ defmodule Darker.Lights do
 
     Logger.info("Initializing Lights")
 
-    Pwm.export("0")
-    Pwm.period(1_000_000)
-    Pwm.duty_cycle(77_250)
-    Pwm.enable("1")
+    {:ok, i2c} = Dac.open()
+    :ok = Dac.millivolts(i2c, level_to_millivolts(0))
 
-    {:noreply, state}
+    {:noreply, Map.merge(state, %{i2c: i2c, level: 0})}
   end
 
   @impl GenServer
   def handle_call(:get_brightness, _from, state) do
-    level =
-      Pwm.duty_cycle()
-      |> String.trim()
-      |> String.to_integer()
-      |> duty_cycle_to_level()
-
-    {:reply, level, state}
+    {:reply, state.level, state}
   end
 
   @impl GenServer
@@ -53,33 +45,16 @@ defmodule Darker.Lights do
 
   @impl GenServer
   def handle_cast({:set_brightness, level}, state) do
-    duty_cycle = level_to_duty_cycle(level) |> Integer.to_string()
+    level = level |> max(0) |> min(100)
+    millivolts = level_to_millivolts(level)
 
-    Logger.info("Setting brightness to #{level}% (duty_cycle: #{duty_cycle})")
+    Logger.info("Setting brightness to #{level}% (#{millivolts} mV)")
 
-    Pwm.duty_cycle(duty_cycle)
+    :ok = Dac.millivolts(state.i2c, millivolts)
 
     Phoenix.PubSub.broadcast(Darker.PubSub, "brightness", %{level: level})
 
-    {:noreply, state}
-  end
-
-  @impl GenServer
-  def handle_cast(:enable, state) do
-    Logger.info("Enabling Lights")
-
-    Pwm.enable("1")
-
-    {:noreply, state}
-  end
-
-  @impl GenServer
-  def handle_cast(:disable, state) do
-    Logger.info("Disabling Lights")
-
-    Pwm.enable("0")
-
-    {:noreply, state}
+    {:noreply, %{state | level: level}}
   end
 
   @impl GenServer
@@ -116,14 +91,6 @@ defmodule Darker.Lights do
     GenServer.cast(__MODULE__, {:set_brightness, level})
   end
 
-  def enable() do
-    GenServer.cast(__MODULE__, :enable)
-  end
-
-  def disable() do
-    GenServer.cast(__MODULE__, :disable)
-  end
-
   def on() do
     GenServer.cast(__MODULE__, :on)
   end
@@ -132,24 +99,8 @@ defmodule Darker.Lights do
     GenServer.cast(__MODULE__, :off)
   end
 
-  defp duty_cycle_to_level(duty_cycle) do
-    max = 80_250
-    min = 77_250
-
-    level =
-      case duty_cycle do
-        duty when duty >= max -> 100
-        duty when duty <= min -> 0
-        duty -> round((duty - min) / (max - min) * 100)
-      end
-
-    level
-  end
-
-  defp level_to_duty_cycle(level) do
-    max = 80_250
-    min = 77_250
-
-    round(level / 100 * (max - min) + min)
+  # The dimmer applies its own (logarithmic) curve, so map linearly onto 0-10V.
+  defp level_to_millivolts(level) do
+    level * 100
   end
 end
